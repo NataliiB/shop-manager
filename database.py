@@ -3,7 +3,8 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-load_dotenv()
+with open(".env", encoding="utf-8") as f:
+    load_dotenv(stream=f)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
