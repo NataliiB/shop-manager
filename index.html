@@ -138,20 +138,20 @@
             const monthText = document.getElementById('selectMonth').options[document.getElementById('selectMonth').selectedIndex].text;
 
             try {
-                const resRev = await fetch(`/api/analytics/revenue/monthly?year=${year}&month=${month}`);
+                const resRev = await fetch(`https://shop-manager-8m9m.onrender.com/api/analytics/revenue/monthly?year=${year}&month=${month}`);
                 const dataRev = await resRev.json();
                 document.getElementById('monthlyRevenueDisplay').innerText = currencyFormatter.format(dataRev.total_revenue || 0);
                 document.getElementById('selectedPeriodLabel').innerText = `${monthText} ${year}`;
 
-                const resAOV = await fetch(`/api/analytics/revenue/average-order?year=${year}&month=${month}`);
+                const resAOV = await fetch(`https://shop-manager-8m9m.onrender.com/api/analytics/revenue/average-order?year=${year}&month=${month}`);
                 const dataAOV = await resAOV.json();
                 document.getElementById('averageOrderDisplay').innerText = currencyFormatter.format(dataAOV.average_order_value || 0);
 
-                const resVol = await fetch(`/api/analytics/metrics/order-volume?year=${year}&month=${month}`);
+                const resVol = await fetch(`https://shop-manager-8m9m.onrender.com/api/analytics/metrics/order-volume?year=${year}&month=${month}`);
                 const dataVol = await resVol.json();
                 document.getElementById('orderVolumeDisplay').innerText = (dataVol.order_volume || 0).toLocaleString();
 
-                const resItems = await fetch(`/api/analytics/metrics/items-per-basket?year=${year}&month=${month}`);
+                const resItems = await fetch(`https://shop-manager-8m9m.onrender.com/api/analytics/metrics/items-per-basket?year=${year}&month=${month}`);
                 const dataItems = await resItems.json();
                 document.getElementById('itemsPerBasketDisplay').innerText = dataItems.items_per_basket || "0.0";
 
@@ -165,7 +165,7 @@
             
             // --- Chart 1: Macro Revenue Trend ---
             try {
-                const resTrend = await fetch('/api/analytics/revenue/monthly-trend');
+                const resTrend = await fetch('https://shop-manager-8m9m.onrender.com/api/analytics/revenue/monthly-trend');
                 const dataTrend = await resTrend.json();
                 const canvasTrend = document.getElementById('revenueTrendChart');
                 
@@ -212,7 +212,7 @@
 
             // --- Chart 2: Top-5 Products ---
             try {
-                const resTop = await fetch('/api/analytics/top-products?limit=5');
+                const resTop = await fetch('https://shop-manager-8m9m.onrender.com/api/analytics/top-products?limit=5');
                 const dataTop = await resTop.json();
                 const canvasTop = document.getElementById('topProductsChart');
                 
@@ -255,7 +255,7 @@
 
             // --- Chart 3: Flop-5 Products ---
             try {
-                const resFlop = await fetch('/api/analytics/products/flop-five');
+                const resFlop = await fetch('https://shop-manager-8m9m.onrender.com/api/analytics/products/flop-five');
                 const dataFlop = await resFlop.json();
                 const canvasFlop = document.getElementById('flopProductsChart');
                 
@@ -289,7 +289,7 @@
 
             // --- Chart 4: Category Share ---
             try {
-                const resCat = await fetch('/api/analytics/metrics/category-revenue');
+                const resCat = await fetch('https://shop-manager-8m9m.onrender.com/api/analytics/metrics/category-revenue');
                 const dataCat = await resCat.json();
                 const canvasCat = document.getElementById('categoryShareChart');
                 
