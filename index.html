@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased">
+
+    <div class="max-w-7xl mx-auto px-4 py-8 space-y-8">
+        
+        <header class="flex justify-between items-center border-b border-gray-800 pb-5">
+            <div>
+                <h1 class="text-3xl font-bold text-white tracking-tight">E-Commerce Management Dashboard</h1>
+                <p class="text-sm text-gray-400 mt-1">Interactive SQL Analytics for Stakeholders</p>
+            </div>
+            <div class="bg-green-500/10 text-green-400 text-xs font-semibold px-3 py-1.5 rounded-full border border-green-500/20 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span> Live Data Connected
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-xl">
+            
+            <div class="space-y-3 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-gray-700 pb-4 lg:pb-0 lg:pr-6">
+                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">Target Period</span>
+                <div class="flex gap-2">
+                    <select id="selectYear" class="bg-gray-700 text-white rounded-lg p-2 text-sm w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                        <option value="2026" selected>2026</option>
+                        <option value="2025">2025</option>
+                    </select>
+                    <select id="selectMonth" class="bg-gray-700 text-white rounded-lg p-2 text-sm w-full border border-gray-600 focus:outline-none focus:border-blue-500">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3" selected>March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                    </select>
+                </div>
+                <button onclick="fetchMonthlyMetrics()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2.5 rounded-lg text-sm transition-colors cursor-pointer shadow-md">
+                    Calculate Metrics
+                </button>
+            </div>
+
+            <div class="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 lg:pt-0 lg:pl-2">
+                
+                <div class="flex flex-col justify-center p-2">
+                    <span class="text-xs text-gray-400 uppercase tracking-wider block mb-1">Total Revenue</span>
+                    <span id="monthlyRevenueDisplay" class="text-2xl md:text-3xl font-extrabold text-green-400 tracking-tight">$0.00</span>
+                    <span id="selectedPeriodLabel" class="text-[10px] text-gray-500 block mt-1">March 2026</span>
+                </div>
+
+                <div class="flex flex-col justify-center p-2 border-l border-gray-800">
+                    <span class="text-xs text-gray-400 uppercase tracking-wider block mb-1">Avg. Order Value</span>
+                    <span id="averageOrderDisplay" class="text-2xl md:text-3xl font-extrabold text-blue-400 tracking-tight">$0.00</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Per Order</span>
+                </div>
+
+                <div class="flex flex-col justify-center p-2 border-l border-gray-800">
+                    <span class="text-xs text-gray-400 uppercase tracking-wider block mb-1">Total Orders</span>
+                    <span id="orderVolumeDisplay" class="text-2xl md:text-3xl font-extrabold text-purple-400 tracking-tight">0</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Volume</span>
+                </div>
+
+                <div class="flex flex-col justify-center p-2 border-l border-gray-800">
+                    <span class="text-xs text-gray-400 uppercase tracking-wider block mb-1">Items / Basket</span>
+                    <span id="itemsPerBasketDisplay" class="text-2xl md:text-3xl font-extrabold text-amber-400 tracking-tight">0.0</span>
+                    <span class="text-[10px] text-gray-500 block mt-1">Avg. Quantity</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-gray-800 p-6 rounded-2xl border border-gray-700 shadow-xl">
+            <div class="mb-4">
+                <h2 class="text-xl font-bold text-white">Macro Revenue Trend</h2>
+                <p class="text-xs text-gray-400">Chronological monthly timeline progression</p>
+            </div>
+            <div class="relative h-[320px]">
+                <canvas id="revenueTrendChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-xl flex flex-col justify-between">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-white">Top 5 Products</h2>
+                    <p class="text-xs text-gray-400">Revenue Drivers (USD)</p>
+                </div>
+                <div class="relative h-[250px]">
+                    <canvas id="topProductsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-xl flex flex-col justify-between">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-white">Flop 5 Products</h2>
+                    <p class="text-xs text-gray-400">Lowest Sales (Units)</p>
+                </div>
+                <div class="relative h-[250px]">
+                    <canvas id="flopProductsChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-5 rounded-2xl border border-gray-700 shadow-xl flex flex-col justify-between">
+                <div class="mb-4">
+                    <h2 class="text-lg font-bold text-white">Category Share</h2>
+                    <p class="text-xs text-gray-400">Revenue split by product category</p>
+                </div>
+                <div class="relative h-[250px] flex justify-center items-center">
+                    <canvas id="categoryShareChart"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        let trendChart, topChart, flopChart, categoryChart;
+        
+        // Einheitlicher Währungsformatter ohne Dezimalstellen für die UI
+        const currencyFormatter = new Intl.NumberFormat('en-US', { 
+            style: 'currency', 
+            currency: 'USD',
+            maximumFractionDigits: 0
+        });
+
+        // 1. Dynamische KPI-Karten abrufen und aktualisieren
+        async function fetchMonthlyMetrics() {
+            const year = document.getElementById('selectYear').value;
+            const month = document.getElementById('selectMonth').value;
+            const monthText = document.getElementById('selectMonth').options[document.getElementById('selectMonth').selectedIndex].text;
+
+            try {
+                const resRev = await fetch(`/api/analytics/revenue/monthly?year=${year}&month=${month}`);
+                const dataRev = await resRev.json();
+                document.getElementById('monthlyRevenueDisplay').innerText = currencyFormatter.format(dataRev.total_revenue || 0);
+                document.getElementById('selectedPeriodLabel').innerText = `${monthText} ${year}`;
+
+                const resAOV = await fetch(`/api/analytics/revenue/average-order?year=${year}&month=${month}`);
+                const dataAOV = await resAOV.json();
+                document.getElementById('averageOrderDisplay').innerText = currencyFormatter.format(dataAOV.average_order_value || 0);
+
+                const resVol = await fetch(`/api/analytics/metrics/order-volume?year=${year}&month=${month}`);
+                const dataVol = await resVol.json();
+                document.getElementById('orderVolumeDisplay').innerText = (dataVol.order_volume || 0).toLocaleString();
+
+                const resItems = await fetch(`/api/analytics/metrics/items-per-basket?year=${year}&month=${month}`);
+                const dataItems = await resItems.json();
+                document.getElementById('itemsPerBasketDisplay').innerText = dataItems.items_per_basket || "0.0";
+
+            } catch (error) {
+                console.error("Fehler beim Aktualisieren der KPIs:", error);
+            }
+        }
+
+        // 2. Diagramme isoliert und ausfallsicher rendern
+        async function loadCharts() {
+            
+            // --- Chart 1: Macro Revenue Trend ---
+            try {
+                const resTrend = await fetch('/api/analytics/revenue/monthly-trend');
+                const dataTrend = await resTrend.json();
+                const canvasTrend = document.getElementById('revenueTrendChart');
+                
+                if (canvasTrend) {
+                    const ctxTrend = canvasTrend.getContext('2d');
+                    if (trendChart) trendChart.destroy();
+                    trendChart = new Chart(ctxTrend, {
+                        type: 'line',
+                        data: {
+                            labels: dataTrend.map(item => item.month),
+                            datasets: [{
+                                data: dataTrend.map(item => item.revenue),
+                                borderColor: 'rgba(16, 185, 129, 1)',
+                                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.35,
+                                pointBackgroundColor: 'rgba(16, 185, 129, 1)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ' Revenue: ' + currencyFormatter.format(context.parsed.y);
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+                                x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                            }
+                        }
+                    });
+                }
+            } catch (e) { 
+                console.error("Trend-Chart fehlgeschlagen:", e); 
+            }
+
+            // --- Chart 2: Top-5 Products ---
+            try {
+                const resTop = await fetch('/api/analytics/top-products?limit=5');
+                const dataTop = await resTop.json();
+                const canvasTop = document.getElementById('topProductsChart');
+                
+                if (canvasTop) {
+                    const ctxTop = canvasTop.getContext('2d');
+                    if (topChart) topChart.destroy();
+                    topChart = new Chart(ctxTop, {
+                        type: 'bar',
+                        data: {
+                            labels: dataTop.map(item => item.product_name),
+                            datasets: [{
+                                data: dataTop.map(item => item.total_revenue),
+                                backgroundColor: 'rgba(59, 130, 246, 0.85)',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { 
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ' Revenue: ' + currencyFormatter.format(context.parsed.y);
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af' } },
+                                x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                            }
+                        }
+                    });
+                }
+            } catch (e) { 
+                console.error("Top-Products-Chart fehlgeschlagen:", e); 
+            }
+
+            // --- Chart 3: Flop-5 Products ---
+            try {
+                const resFlop = await fetch('/api/analytics/products/flop-five');
+                const dataFlop = await resFlop.json();
+                const canvasFlop = document.getElementById('flopProductsChart');
+                
+                if (canvasFlop) {
+                    const ctxFlop = canvasFlop.getContext('2d');
+                    if (flopChart) flopChart.destroy();
+                    flopChart = new Chart(ctxFlop, {
+                        type: 'bar',
+                        data: {
+                            labels: dataFlop.map(item => item.product_name),
+                            datasets: [{
+                                data: dataFlop.map(item => item.units_sold),
+                                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                                borderRadius: 6
+                            }]
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9ca3af', stepSize: 1 } },
+                                x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                            }
+                        }
+                    });
+                }
+            } catch (e) { 
+                console.error("Flop-Products-Chart fehlgeschlagen:", e); 
+            }
+
+            // --- Chart 4: Category Share ---
+            try {
+                const resCat = await fetch('/api/analytics/metrics/category-revenue');
+                const dataCat = await resCat.json();
+                const canvasCat = document.getElementById('categoryShareChart');
+                
+                if (canvasCat) {
+                    const ctxCat = canvasCat.getContext('2d');
+                    if (categoryChart) categoryChart.destroy();
+                    categoryChart = new Chart(ctxCat, {
+                        type: 'doughnut',
+                        data: {
+                            labels: dataCat.map(item => item.category),
+                            datasets: [{
+                                data: dataCat.map(item => item.revenue),
+                                backgroundColor: [
+                                    'rgba(245, 158, 11, 0.8)',  // Amber
+                                    'rgba(16, 185, 129, 0.8)',  // Emerald
+                                    'rgba(99, 102, 241, 0.8)',  // Indigo
+                                    'rgba(236, 72, 153, 0.8)',  // Pink
+                                    'rgba(14, 165, 233, 0.8)'   // Sky Blue
+                                ],
+                                borderColor: '#1f2937',
+                                borderWidth: 2
+                            }]
+                        },
+                        plugins: [ChartDataLabels], // Plugin hier aktivieren
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'bottom',
+                                    labels: { color: '#9ca3af', boxWidth: 12, font: { size: 11 } }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return ' ' + context.label + ': ' + currencyFormatter.format(context.parsed);
+                                        }
+                                    }
+                                },
+                                // Konfiguration für die Prozentanzeige auf den Segmenten
+                                datalabels: {
+                                    color: '#ffffff',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12
+                                    },
+                                    formatter: (value, ctx) => {
+                                        // Gesamtsumme aller Kategorien berechnen
+                                        const dataset = ctx.chart.data.datasets[0];
+                                        const total = dataset.data.reduce((acc, val) => acc + val, 0);
+                                        
+                                        // Prozentanteil berechnen
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        
+                                        return percentage > 3 ? `${percentage}%` : '';
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (e) { 
+                console.error("Category-Chart fehlgeschlagen:", e); 
+            }
+        }
+
+        // Sicherer Startpunkt sobald das DOM vollständig generiert wurde
+        document.addEventListener("DOMContentLoaded", function() {
+            loadCharts();          
+            fetchMonthlyMetrics(); 
+        });
+    </script>
+</body>
+</html>
